@@ -10,56 +10,27 @@
 #   chmod +x install_new_system.sh
 #   ./install_new_system.sh
 
-# Detect OS and architecture
-OS="$(uname -s)"
+# Detect architecture
 ARCH="$(uname -m)"
-
-echo "Setting up new system..."
-echo "Detected OS: $OS"
+echo "Setting up new macOS system..."
 echo "Detected architecture: $ARCH"
 
 # Determine expected Homebrew binary location
-if [[ "$OS" == "Darwin" ]]; then
-    if [[ "$ARCH" == "arm64" ]]; then
-        BREW_BINARY="/opt/homebrew/bin/brew"
-    else
-        BREW_BINARY="/usr/local/bin/brew"
-    fi
-else
-    BREW_BINARY="$HOME/.homebrew/bin/brew"
-fi
+BREW_BINARY="$([[ "$ARCH" == "arm64" ]] && echo "/opt/homebrew/bin/brew" || echo "/usr/local/bin/brew")"
 
 # Install Homebrew if the binary doesn't exist
 if [[ ! -x "$BREW_BINARY" ]]; then
     echo "Installing Homebrew..."
-    
-    if [[ "$OS" == "Linux" ]]; then
-        # Linux prerequisites
-        sudo apt-get update
-        sudo apt-get install -y build-essential curl file git
-        
-        # Set custom Homebrew location for Linux
-        export HOMEBREW_PREFIX="$HOME/.homebrew"
-    fi
-    
-    # Install Homebrew
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
     echo "Homebrew is already installed at $BREW_BINARY, updating..."
     "$BREW_BINARY" update
 fi
 
 # Configure Homebrew environment
-if [[ "$OS" == "Linux" ]]; then
-    echo "export HOMEBREW_PREFIX=\"$HOMEBREW_PREFIX\"" >> ~/.bashrc
-else
-    # Set up Homebrew in current shell and bashrc
-    brew_init="eval \"\$($BREW_BINARY shellenv)\""
-    eval "$brew_init"
-    echo "$brew_init" >> ~/.bashrc
-fi
-
-source ~/.bashrc
+brew_init="eval \"\$($BREW_BINARY shellenv)\""
+eval "$brew_init"
+echo "$brew_init" >> ~/.bashrc
 
 # Verify installation
 brew doctor
@@ -93,11 +64,7 @@ echo "New bash version: $("${BASH_PATH}" --version)"
 
 # Install additional tools
 echo "Installing additional tools..."
-brew install zoxide fzf oh-my-posh bat ripgrep neovim stow httpie jq
-
-# Install cask applications
-echo "Installing cask applications..."
-brew install goku
+brew install zoxide fzf oh-my-posh bat ripgrep neovim stow httpie jq goku
 
 # Create a backup of existing .bashrc if it exists
 if [ -f ~/.bashrc ]; then
@@ -112,13 +79,13 @@ cat << 'EOF' >> ~/.bashrc
 # Environment variables
 export EDITOR="nvim"
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
-export BAT_THEME="$([ "$(uname -s)" = "Darwin" ] && echo 'GitHub' || echo 'OneHalfDark')"
+export BAT_THEME="GitHub"
 
 # Tool initializations
 eval "$(zoxide init bash)"
 eval "$(oh-my-posh init bash)"
 
-# Install fzf key bindings and completion
+# FZF configuration
 [ -f "${BREW_PREFIX}/opt/fzf/shell/completion.bash" ] && source "${BREW_PREFIX}/opt/fzf/shell/completion.bash"
 [ -f "${BREW_PREFIX}/opt/fzf/shell/key-bindings.bash" ] && source "${BREW_PREFIX}/opt/fzf/shell/key-bindings.bash"
 
