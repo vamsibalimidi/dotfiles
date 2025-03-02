@@ -25,6 +25,9 @@ alias cya=' xterm -sb -sl 5000 -fg white -bg darkcyan -cr red -title "Switch" -n
 alias dev='konsole --profile dev&'
 alias diff='gvimdiff'
 
+# Add bat aliases
+alias cat="bat --paging=never"
+alias less="bat"
 
 alias e='exit'
 alias findc='find . -depth \( -name \*.c -o -name \*.h \) -exec grep -l \!* {} \; | tee /dev/stderr | xargs grep -n \!* '
@@ -54,6 +57,7 @@ alias m='cat \!* | tbl | col | nroff -man | more'
 alias nv='nvim'
 alias nvk='NVIM_APPNAME="nvim-kickstart" nvim'
 alias nvn='NVIM_APPNAME="nvim-chad" nvim'
+alias rg="rg --smart-case"
 alias s='grep -rn'
 alias sm='source ~/.mybashrc'
 alias st='stow'
@@ -61,6 +65,6 @@ alias sti='stow -t ~/'
 alias stx='stow -t ~/ -D'
 alias t='tmux list-keys | f'
 alias tw='tmux new-window -n '
-alias vi='vim'
-alias vim='nvim'
+alias vi='nvk'
+alias vim='nvk'
 echo "------------------------------------------------------------------------------"
