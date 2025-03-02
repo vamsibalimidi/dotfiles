@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # To install:
-#   curl -o- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/install_new_system.sh | bash
+#   curl -o- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | bash
 # Or:
-#   wget -qO- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/install_new_system.sh | bash
+#   wget -qO- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | bash
 #
 # To download without running:
-#   curl -o install_new_system.sh https://raw.githubusercontent.com/vamsibalimidi/dotfiles/install_new_system.sh
+#   curl -o install_new_system.sh https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh
 #   chmod +x install_new_system.sh
 #   ./install_new_system.sh
 
