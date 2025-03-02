@@ -1,11 +1,13 @@
 #!/bin/bash
 
+set -e # Exit immediately if a command exits with a non-zero status
+
 # To install:
 #   curl -o- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_linux_system.sh | /bin/bash
 # Or:
 #   wget -qO- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_linux_system.sh | /bin/bash
 
-echo "Setting up new Linux system (non-root installation)..."
+echo "$(date) - Setting up new Linux system (non-root installation)..."
 
 # Set up local installation directory
 LOCAL_BIN="$HOME/.local/bin"
@@ -19,8 +21,8 @@ if [[ ":$PATH:" != *":$LOCAL_BIN:"* ]]; then
 fi
 
 # Backup existing .bashrc
-if [ -f ~/.bashrc ]; then
-    echo "Creating backup of existing .bashrc..."
+if [ -f ~/.bashrc ] && [ ! -f ~/.bashrc.backup ]; then
+    echo "$(date) - Creating backup of existing .bashrc..."
     cp ~/.bashrc ~/.bashrc.backup
 fi
 
