@@ -97,7 +97,7 @@ brew install zoxide fzf oh-my-posh bat ripgrep neovim stow httpie jq
 
 # Install cask applications
 echo "Installing cask applications..."
-brew install --cask goku
+brew install goku
 
 # Create a backup of existing .bashrc if it exists
 if [ -f ~/.bashrc ]; then
