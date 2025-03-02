@@ -22,38 +22,27 @@ echo "Detected architecture: $ARCH"
 if ! command -v brew &> /dev/null; then
     echo "Installing Homebrew..."
     
-    if [[ "$OS" == "Darwin" ]]; then
-        # macOS installation
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        # Configure Homebrew based on architecture
-        if [[ "$ARCH" == "arm64" ]]; then
-            echo "Configuring Homebrew for Apple Silicon..."
-            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        else
-            echo "Configuring Homebrew for Intel Mac..."
-            echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
-            eval "$(/usr/local/bin/brew shellenv)"
-        fi
-    elif [[ "$OS" == "Linux" ]]; then
-        # Linux installation in home directory
-        HOMEBREW_PREFIX="$HOME/.homebrew"
-        echo "Installing Homebrew in $HOMEBREW_PREFIX"
-        
-        # Install prerequisites
+    if [[ "$OS" == "Linux" ]]; then
+        # Linux prerequisites
         sudo apt-get update
         sudo apt-get install -y build-essential curl file git
-
-        # Install Homebrew in custom location
-        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         
-        # Configure Homebrew environment
-        echo "Configuring Homebrew environment..."
-        echo "export HOMEBREW_PREFIX=\"$HOMEBREW_PREFIX\"" >> ~/.profile
-        echo 'eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"' >> ~/.profile
-        eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
+        # Set custom Homebrew location for Linux
+        export HOMEBREW_PREFIX="$HOME/.homebrew"
     fi
+    
+    # Install Homebrew
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # Get the correct brew path and add to bashrc
+    if [[ "$OS" == "Linux" ]]; then
+        echo "export HOMEBREW_PREFIX=\"$HOMEBREW_PREFIX\"" >> ~/.bashrc
+    fi
+    
+    # Add brew to current shell and bashrc
+    brew_init="eval \"\$($(brew --prefix)/bin/brew shellenv)\""
+    eval "$brew_init"
+    echo "$brew_init" >> ~/.bashrc
 else
     echo "Homebrew is already installed, updating..."
     brew update
@@ -103,33 +92,27 @@ if [ -f ~/.bashrc ]; then
     cp ~/.bashrc ~/.bashrc.backup
 fi
 
-# Configure fzf
+# Configure all tools in .bashrc
+echo "Configuring tools in .bashrc..."
+cat << 'EOF' >> ~/.bashrc
+
+# Environment variables
+export EDITOR="nvim"
+export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+export BAT_THEME="$([ "$(uname -s)" = "Darwin" ] && echo 'GitHub' || echo 'OneHalfDark')"
+
+# Tool initializations
+eval "$(zoxide init bash)"
+eval "$(oh-my-posh init bash)"
+
+# Install fzf key bindings and completion
+[ -f "${BREW_PREFIX}/opt/fzf/shell/completion.bash" ] && source "${BREW_PREFIX}/opt/fzf/shell/completion.bash"
+[ -f "${BREW_PREFIX}/opt/fzf/shell/key-bindings.bash" ] && source "${BREW_PREFIX}/opt/fzf/shell/key-bindings.bash"
+
+EOF
+
+# Run fzf installer
 echo "Configuring fzf..."
 $(brew --prefix)/opt/fzf/install --all
-
-# Configure zoxide
-echo "Configuring zoxide..."
-echo 'eval "$(zoxide init bash)"' >> ~/.bashrc
-
-# Configure oh-my-posh
-echo "Configuring oh-my-posh..."
-echo 'eval "$(oh-my-posh init bash)"' >> ~/.bashrc
-
-# Configure bat
-echo "Configuring bat..."
-if [[ "$OS" == "Darwin" ]]; then
-    # Use default macOS theme
-    echo 'export BAT_THEME="GitHub"' >> ~/.bashrc
-else
-    # Use a dark theme for Linux
-    echo 'export BAT_THEME="OneHalfDark"' >> ~/.bashrc
-fi
-
-# Configure ripgrep
-echo "Configuring ripgrep..."
-echo 'export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"' >> ~/.bashrc
-
-# Configure simple nvim alias
-echo 'export EDITOR="nvim"' >> ~/.bashrc
 
 echo "Installation complete! Please restart your shell or source your .bashrc"
