@@ -1,118 +1,114 @@
 #!/bin/bash
 
+set -e # Exit immediately if a command exits with a non-zero status
+
 # To install:
-#   curl -o- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | bash
+#   curl -o- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | /bin/bash
 # Or:
-#   wget -qO- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | bash
+#   wget -qO- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | /bin/bash
 #
 # To download without running:
 #   curl -o install_new_system.sh https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh
 #   chmod +x install_new_system.sh
 #   ./install_new_system.sh
 
-# Detect OS and architecture
-OS="$(uname -s)"
+# Detect architecture
 ARCH="$(uname -m)"
+echo "$(date) - Setting up new macOS system..."
+echo "$(date) - Detected architecture: $ARCH"
 
-echo "Setting up new system..."
-echo "Detected OS: $OS"
-echo "Detected architecture: $ARCH"
+# Determine expected Homebrew binary location
+BREW_BINARY="$([[ "$ARCH" == "arm64" ]] && echo "/opt/homebrew/bin/brew" || echo "/usr/local/bin/brew")"
 
-# Install Homebrew if it's not installed
-if ! command -v brew &> /dev/null; then
-    echo "Installing Homebrew..."
-    
-    if [[ "$OS" == "Linux" ]]; then
-        # Linux prerequisites
-        sudo apt-get update
-        sudo apt-get install -y build-essential curl file git
-        
-        # Set custom Homebrew location for Linux
-        export HOMEBREW_PREFIX="$HOME/.homebrew"
-    fi
-    
-    # Install Homebrew
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # Get the correct brew path and add to bashrc
-    if [[ "$OS" == "Linux" ]]; then
-        echo "export HOMEBREW_PREFIX=\"$HOMEBREW_PREFIX\"" >> ~/.bashrc
-    fi
-    
-    # Add brew to current shell and bashrc
-    brew_init="eval \"\$($(brew --prefix)/bin/brew shellenv)\""
-    eval "$brew_init"
-    echo "$brew_init" >> ~/.bashrc
+# Check if Homebrew is installed
+if [[ ! -x "$BREW_BINARY" ]]; then
+    echo "$(date) - Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
-    echo "Homebrew is already installed, updating..."
-    brew update
+    echo "$(date) - Homebrew is already installed at $BREW_BINARY, updating..."
+    "$BREW_BINARY" update
 fi
 
+# Configure Homebrew environment
+echo "$(date) - Configuring Homebrew environment..."
+if ! grep -q "eval \$(\"$BREW_BINARY\" shellenv)" ~/.bashrc; then
+  brew shellenv | tee -a ~/.bashrc
+fi
+source ~/.bashrc
+
 # Verify installation
+echo "$(date) - Verifying Homebrew installation..."
 brew doctor
 
 # Install and configure latest bash
-echo "Installing latest version of bash..."
+echo "$(date) - Installing latest version of bash..."
 brew install bash
 
 # Set bash path using brew --prefix
-BREW_PREFIX=$(brew --prefix)
+BREW_PREFIX="$("$BREW_BINARY" --prefix)"
 BASH_PATH="${BREW_PREFIX}/bin/bash"
 
 # Add the new shell to the list of allowable shells if not already present
 if ! grep -q "${BASH_PATH}" /etc/shells; then
-    echo "Adding bash to allowed shells..."
+    echo "$(date) - Adding bash to allowed shells..."
     echo "${BASH_PATH}" | sudo tee -a /etc/shells
 fi
 
 # Change the default shell to the new bash if not already set
 if [[ "$SHELL" != "${BASH_PATH}" ]]; then
-    echo "Changing default shell to new bash version..."
+    echo "$(date) - Changing default shell to new bash version..."
     chsh -s "${BASH_PATH}" "$USER"
-    echo "Shell change will take effect after logging out and back in"
+    echo "$(date) - Shell change will take effect after logging out and back in"
 fi
 
 # Display bash information
-echo "Bash installation details:"
-echo "Current shell: $SHELL"
-echo "New bash path: ${BASH_PATH}"
-echo "New bash version: $("${BASH_PATH}" --version)"
+echo "$(date) - Bash installation details:"
+echo "$(date) - Current shell: $SHELL"
+echo "$(date) - New bash path: ${BASH_PATH}"
+echo "$(date) - New bash version: $("${BASH_PATH}" --version)"
 
 # Install additional tools
-echo "Installing additional tools..."
-brew install zoxide fzf oh-my-posh bat ripgrep neovim stow httpie jq
-
-# Install cask applications
-echo "Installing cask applications..."
-brew install --cask goku
+echo "$(date) - Installing additional tools..."
+for tool in zoxide fzf oh-my-posh bat ripgrep neovim stow httpie jq goku; do
+  if ! which "$tool" &> /dev/null; then
+    echo "$(date) - Installing $tool..."
+    brew install "$tool"
+  else
+    echo "$(date) - $tool already installed, skipping..."
+  fi
+done
 
 # Create a backup of existing .bashrc if it exists
-if [ -f ~/.bashrc ]; then
-    echo "Creating backup of existing .bashrc..."
+if [ -f ~/.bashrc ] && [ ! -f ~/.bashrc.backup ]; then
+    echo "$(date) - Creating backup of existing .bashrc..."
     cp ~/.bashrc ~/.bashrc.backup
 fi
 
 # Configure all tools in .bashrc
-echo "Configuring tools in .bashrc..."
+echo "$(date) - Configuring tools in .bashrc..."
+if ! grep -q "export EDITOR=\"nvim\"" ~/.bashrc || ! grep -q "export RIPGREP_CONFIG_PATH" ~/.bashrc || ! grep -q "export BAT_THEME" ~/.bashrc; then
 cat << 'EOF' >> ~/.bashrc
 
 # Environment variables
 export EDITOR="nvim"
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
-export BAT_THEME="$([ "$(uname -s)" = "Darwin" ] && echo 'GitHub' || echo 'OneHalfDark')"
+export BAT_THEME="GitHub"
 
 # Tool initializations
-eval "$(zoxide init bash)"
-eval "$(oh-my-posh init bash)"
+eval "\$(zoxide init bash)"
+eval "\$(oh-my-posh init bash)"
 
-# Install fzf key bindings and completion
+# FZF configuration
 [ -f "${BREW_PREFIX}/opt/fzf/shell/completion.bash" ] && source "${BREW_PREFIX}/opt/fzf/shell/completion.bash"
 [ -f "${BREW_PREFIX}/opt/fzf/shell/key-bindings.bash" ] && source "${BREW_PREFIX}/opt/fzf/shell/key-bindings.bash"
 
 EOF
+fi
 
 # Run fzf installer
-echo "Configuring fzf..."
-$(brew --prefix)/opt/fzf/install --all
+echo "$(date) - Configuring fzf..."
+if [[ ! -d "${BREW_PREFIX}/opt/fzf" ]]; then
+  $(brew --prefix)/opt/fzf/install --all
+fi
 
-echo "Installation complete! Please restart your shell or source your .bashrc"
+echo "$(date) - Installation complete! Please restart your shell or source your .bashrc"
