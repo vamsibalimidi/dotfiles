@@ -32,7 +32,7 @@ fi
 # Configure Homebrew environment
 echo "$(date) - Configuring Homebrew environment..."
 if ! grep -q "eval \$(\"$BREW_BINARY\" shellenv)" ~/.bashrc; then
-  brew shellenv | tee -a ~/.bashrc
+  "$BREW_BINARY" shellenv | tee -a ~/.bashrc
 fi
 source ~/.bashrc
 
