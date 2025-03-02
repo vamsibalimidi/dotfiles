@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # To install:
-#   curl -o- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | bash
+#   curl -o- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | /bin/bash
 # Or:
-#   wget -qO- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | bash
+#   wget -qO- https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh | /bin/bash
 #
 # To download without running:
 #   curl -o install_new_system.sh https://raw.githubusercontent.com/vamsibalimidi/dotfiles/main/install_new_system.sh
@@ -35,13 +35,24 @@ if ! command -v brew &> /dev/null; then
     # Install Homebrew
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     
+    # Determine Homebrew's prefix path based on OS and architecture
+    if [[ "$OS" == "Darwin" ]]; then
+        if [[ "$ARCH" == "arm64" ]]; then
+            BREW_BINARY="/opt/homebrew/bin/brew"
+        else
+            BREW_BINARY="/usr/local/bin/brew"
+        fi
+    else
+        BREW_BINARY="$HOMEBREW_PREFIX/bin/brew"
+    fi
+    
     # Get the correct brew path and add to bashrc
     if [[ "$OS" == "Linux" ]]; then
         echo "export HOMEBREW_PREFIX=\"$HOMEBREW_PREFIX\"" >> ~/.bashrc
     fi
     
-    # Add brew to current shell and bashrc
-    brew_init="eval \"\$($(brew --prefix)/bin/brew shellenv)\""
+    # Add brew to current shell and bashrc using absolute path
+    brew_init="eval \"\$($BREW_BINARY shellenv)\""
     eval "$brew_init"
     echo "$brew_init" >> ~/.bashrc
 else
