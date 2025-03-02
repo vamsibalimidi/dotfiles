@@ -52,12 +52,14 @@ fi
 # Configure Homebrew environment
 if [[ "$OS" == "Linux" ]]; then
     echo "export HOMEBREW_PREFIX=\"$HOMEBREW_PREFIX\"" >> ~/.bashrc
+else
+    # Set up Homebrew in current shell and bashrc
+    brew_init="eval \"\$($BREW_BINARY shellenv)\""
+    eval "$brew_init"
+    echo "$brew_init" >> ~/.bashrc
 fi
 
-# Set up Homebrew in current shell and bashrc
-brew_init="eval \"\$($BREW_BINARY shellenv)\""
-eval "$brew_init"
-echo "$brew_init" >> ~/.bashrc
+source ~/.bashrc
 
 # Verify installation
 brew doctor
