@@ -17,10 +17,20 @@ ARCH="$(uname -m)"
 echo "Setting up new system..."
 echo "Detected OS: $OS"
 echo "Detected architecture: $ARCH"
-exit
 
-# Install Homebrew if it's not installed
-if ! command -v brew &> /dev/null; then
+# Determine expected Homebrew binary location
+if [[ "$OS" == "Darwin" ]]; then
+    if [[ "$ARCH" == "arm64" ]]; then
+        BREW_BINARY="/opt/homebrew/bin/brew"
+    else
+        BREW_BINARY="/usr/local/bin/brew"
+    fi
+else
+    BREW_BINARY="$HOME/.homebrew/bin/brew"
+fi
+
+# Install Homebrew if the binary doesn't exist
+if [[ ! -x "$BREW_BINARY" ]]; then
     echo "Installing Homebrew..."
     
     if [[ "$OS" == "Linux" ]]; then
@@ -34,31 +44,20 @@ if ! command -v brew &> /dev/null; then
     
     # Install Homebrew
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # Determine Homebrew's prefix path based on OS and architecture
-    if [[ "$OS" == "Darwin" ]]; then
-        if [[ "$ARCH" == "arm64" ]]; then
-            BREW_BINARY="/opt/homebrew/bin/brew"
-        else
-            BREW_BINARY="/usr/local/bin/brew"
-        fi
-    else
-        BREW_BINARY="$HOMEBREW_PREFIX/bin/brew"
-    fi
-    
-    # Get the correct brew path and add to bashrc
-    if [[ "$OS" == "Linux" ]]; then
-        echo "export HOMEBREW_PREFIX=\"$HOMEBREW_PREFIX\"" >> ~/.bashrc
-    fi
-    
-    # Add brew to current shell and bashrc using absolute path
-    brew_init="eval \"\$($BREW_BINARY shellenv)\""
-    eval "$brew_init"
-    echo "$brew_init" >> ~/.bashrc
 else
-    echo "Homebrew is already installed, updating..."
-    brew update
+    echo "Homebrew is already installed at $BREW_BINARY, updating..."
+    "$BREW_BINARY" update
 fi
+
+# Configure Homebrew environment
+if [[ "$OS" == "Linux" ]]; then
+    echo "export HOMEBREW_PREFIX=\"$HOMEBREW_PREFIX\"" >> ~/.bashrc
+fi
+
+# Set up Homebrew in current shell and bashrc
+brew_init="eval \"\$($BREW_BINARY shellenv)\""
+eval "$brew_init"
+echo "$brew_init" >> ~/.bashrc
 
 # Verify installation
 brew doctor
