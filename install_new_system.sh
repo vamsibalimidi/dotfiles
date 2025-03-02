@@ -17,6 +17,7 @@ ARCH="$(uname -m)"
 echo "Setting up new system..."
 echo "Detected OS: $OS"
 echo "Detected architecture: $ARCH"
+exit
 
 # Install Homebrew if it's not installed
 if ! command -v brew &> /dev/null; then
