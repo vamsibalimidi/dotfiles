@@ -1,27 +1,32 @@
 # .mybashrc
 #
 # shell environment variables set by 'brew'
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if [ -d "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-export OH_MY_POSH_DIR="$(brew --prefix oh-my-posh)/themes"
+if [ -d "/opt/homebrew/bin/brew" ]; then
+    export OH_MY_POSH_DIR="$(brew --prefix oh-my-posh)/themes"
+fi
 
 #
 # Set prompt using oh-my-posh
 #
-unset OH_MY_POSH_DIR
-export OH_MY_POSH_DIR="$(/opt/homebrew/bin/brew --prefix oh-my-posh)/themes"
+if [ -d "/opt/homebrew/bin/brew" ]; then
+    export OH_MY_POSH_DIR="$(/opt/homebrew/bin/brew --prefix oh-my-posh)/themes"
+fi
 
 if [[ -z "${OH_MY_POSH_DIR}" ]]; then
-  echo "Skipping oh-my-posh setup. Make sure OH_MY_POSH_DIR environment variable is set"
+#  echo "Skipping oh-my-posh setup. Make sure OH_MY_POSH_DIR environment variable is set"
   eval "$(oh-my-posh init bash)"
 else
     if [[ -z "${SSH_CONNECTION}" ]]; then
-     echo "Not SSH"
+#     echo "Not SSH"
         eval "$(oh-my-posh init bash --config ~/my_jandedobbeleer.omp.json)"
     else
-    echo "SSH"
+#    echo "SSH"
         eval "$(oh-my-posh init bash --config ~/my_iterm2.omp.json)"
     fi
 fi
