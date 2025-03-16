@@ -1,27 +1,32 @@
 # .mybashrc
 #
 # shell environment variables set by 'brew'
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if [ -d "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-export OH_MY_POSH_DIR="$(brew --prefix oh-my-posh)/themes"
+if [ -d "/opt/homebrew/bin/brew" ]; then
+    export OH_MY_POSH_DIR="$(brew --prefix oh-my-posh)/themes"
+fi
 
 #
 # Set prompt using oh-my-posh
 #
-unset OH_MY_POSH_DIR
-export OH_MY_POSH_DIR="$(/opt/homebrew/bin/brew --prefix oh-my-posh)/themes"
+if [ -d "/opt/homebrew/bin/brew" ]; then
+    export OH_MY_POSH_DIR="$(/opt/homebrew/bin/brew --prefix oh-my-posh)/themes"
+fi
 
 if [[ -z "${OH_MY_POSH_DIR}" ]]; then
-  echo "Skipping oh-my-posh setup. Make sure OH_MY_POSH_DIR environment variable is set"
+#  echo "Skipping oh-my-posh setup. Make sure OH_MY_POSH_DIR environment variable is set"
   eval "$(oh-my-posh init bash)"
 else
     if [[ -z "${SSH_CONNECTION}" ]]; then
-     echo "Not SSH"
+#     echo "Not SSH"
         eval "$(oh-my-posh init bash --config ~/my_jandedobbeleer.omp.json)"
     else
-    echo "SSH"
+#    echo "SSH"
         eval "$(oh-my-posh init bash --config ~/my_iterm2.omp.json)"
     fi
 fi
@@ -77,3 +82,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local/lib
 FZF_DEFAULT_OPTS='--color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#7E8E91,fg:#F8F8F2,header:#7E8E91,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672'
 
 FZF_DEFAULT_OPTS='--color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#7E8E91,fg:#F8F8F2,header:#7E8E91,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672'
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/vamsibalimidi/.lmstudio/bin"
