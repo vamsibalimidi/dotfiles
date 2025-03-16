@@ -67,7 +67,6 @@ alias t='tmux list-keys | f'
 alias tw='tmux new-window -n '
 alias vi='nvk'
 alias vim='nvk'
-<<<<<<< HEAD
 
 #########################################################
 ##########         ML Related Aliasas      ##############
@@ -84,6 +83,3 @@ alias ol='ollama list'
 #gollama
 alias golm='gollama -L -ollama-dir ~/.ollama/models/' #Link ollama models to LM Studio
 alias goll='gollama -link-lmstudio -lm-dir ~/.lmstudio/models/' #Link LM studio models to ollama
-
-=======
->>>>>>> 7c6b78d0614e84bc27e937446ba54948f419bdbc
