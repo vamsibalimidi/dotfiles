@@ -75,6 +75,7 @@ alias vim='nvk'
 alias coa='conda activate '
 alias cod='conda deactivate '
 alias coam='conda activate ml_env'
+alias coal='conda env list'
 
 
 #Ollama
