@@ -36,9 +36,9 @@ alias gt='git tag --contains '
 alias ga='git add '
 alias gc='git commit '
 alias gcd='git commit -am "Default Commit Alias"'
-alias gco='git config -l'
-alias gcog='git config --global -l'
-alias gcol='git config --local -l'
+alias gco='git config -l | sort'
+alias gcog='git config --global -l | sort'
+alias gcol='git config --local -l | sort'
 alias gd='git_diff_with_prev_commit '
 alias gf='git diff '
 alias gitdir='git rev-parse --show-toplevel'
@@ -67,4 +67,20 @@ alias t='tmux list-keys | f'
 alias tw='tmux new-window -n '
 alias vi='nvk'
 alias vim='nvk'
-echo "------------------------------------------------------------------------------"
+
+#########################################################
+##########         ML Related Aliasas      ##############
+#########################################################
+#Conda:
+alias coa='conda activate '
+alias cod='conda deactivate '
+alias coam='conda activate ml_env'
+
+
+#Ollama
+alias ol='ollama list'
+
+#gollama
+alias golm='gollama -L -ollama-dir ~/.ollama/models/' #Link ollama models to LM Studio
+alias goll='gollama -link-lmstudio -lm-dir ~/.lmstudio/models/' #Link LM studio models to ollama
+

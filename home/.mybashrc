@@ -6,7 +6,6 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 export OH_MY_POSH_DIR="$(brew --prefix oh-my-posh)/themes"
-
 #
 # Set prompt using oh-my-posh
 #
@@ -77,3 +76,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local/lib
 FZF_DEFAULT_OPTS='--color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#7E8E91,fg:#F8F8F2,header:#7E8E91,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672'
 
 FZF_DEFAULT_OPTS='--color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#7E8E91,fg:#F8F8F2,header:#7E8E91,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672'
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/vamsibalimidi/.lmstudio/bin"
